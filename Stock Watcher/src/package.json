@@ -1,0 +1,18 @@
+{
+  "name": "stock-watcher",
+  "description": "Watches price changes in stocks and raises notifications",
+  "version": "0.0.1",
+  "author": "Manomohanan RV <rvmanu@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rvmanu/stock-watcher.git"
+  },
+  "dependencies": {
+    "string.format": "1.1.2",
+    "winston": "3.2.1",
+    "gmail-send": "1.8.10"
+  },
+  "devDependencies": {
+  },
+  "license": "MIT"
+}

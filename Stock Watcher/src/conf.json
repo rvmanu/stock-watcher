@@ -1,0 +1,57 @@
+{
+	"feedUrl": "https://appfeeds.moneycontrol.com/jsonapi/market/indices&format=json&ind_id=9",
+	"queryUrl": "https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&query={name}&type=1&format=json",
+	"stockPriceFeedUrl": "https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/{code}",
+	"templateHeaders": [ "Index/Stock", "Exchange", "Current Price", "Change", "Opening Price", "Last Available Price", "52 Weeks Low", "52 Weeks High" ],
+	"rowTemplatePath": "template.html",
+	"containerTemplate": "<html><body><table>{rowTemplate}</table></body></html>",
+	"logPath": "logs.txt",
+	"pollIntervalInMs": 20000,
+	"triggerThreshold": -4,
+	"stocks": [
+		{ "name": "BOSCHLTD" },		
+		{ "name": "TATAMOTORS" },
+		{ "name": "INFY" },		
+		{ "name": "SOUTHBANK" },
+		{ "name": "SUNPHARMA" },
+		{ "name": "VEDL" },
+		{ "name": "RELIANCE" },
+		{ "name": "TCS" }		
+	],
+	"mailIntervalInMinutes": 10,
+	"mailOptions": {
+		"user": "user@gmail.com",
+		"pass": "user",
+		"to": "user@gmail.com",
+		"subject": "NIFTY-50 Fall in NAV Notification"
+	},
+	"log": {
+		"level": "error",
+		"info": {
+			"level": "info",
+			"filename": "./logs/info/info.log",
+			"handleExceptions": true,
+			"json": true,
+			"maxsize": 5242880,
+			"maxFiles": 5,
+			"colorize": false,
+			"isEnabled": true
+		},
+		"error": {
+			"level": "error",
+			"filename": "./logs/error/error.log",
+			"handleExceptions": true,
+			"json": true,
+			"maxsize": 5242880,
+			"maxFiles": 5,
+			"colorize": false,
+			"isEnabled": true
+		},
+		"console": {
+			"level": "debug",
+			"handleExceptions": true,
+			"json": false,
+			"colorize": true
+		}
+	}
+}
