@@ -39,10 +39,14 @@
     <None Include="src\logs\info\info.log" />
     <None Include="src\package-lock.json" />
     <None Include="src\package.json" />
+    <None Include="src\windows service\install.cmd" />
+    <None Include="src\windows service\uninstall.cmd" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\monitor.js" />
     <Content Include="src\template.html" />
+    <Content Include="src\windows service\install.js" />
+    <Content Include="src\windows service\uninstall.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
