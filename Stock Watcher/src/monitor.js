@@ -1,24 +1,35 @@
 var https = require('https'),
-	fs = require('fs'),
-	path = require('path'),
-    filePath = path.join(__dirname, 'conf.json'),
-	format = require('string.format'),
-	winston = require('winston'),
-	sendMail = require('gmail-send');
+    fs = require('fs'),
+    path = require('path'),
+    filePath = path.join(__dirname, 'conf'),
+    format = require('string.format'),
+    winston = require('winston'),
+    sendMail = require('gmail-send'),
+    dotenv = require('dotenv');
+    require('winston-daily-rotate-file');
 
 var initLogs = function(conf){
 	var transports = [ new winston.transports.Console(conf.console) ];
-	if(conf.log.info.isEnabled) {
-		transports.push(new winston.transports.File({ "level": conf.log.info.level, "filename": conf.log.info.filename, timestamp: winston.format.timestamp(), "json": false }));
+    if (conf.log.info.isEnabled) {
+        transports.push(new (winston.transports.DailyRotateFile)({
+            "level": conf.log.info.level,
+            "timestamp": winston.format.timestamp(),
+            "dirname": conf.log.info.dirname,
+            "filename": conf.log.info.filename,
+            "datePattern": conf.log.info.datePattern,
+            "zippedArchive": false,
+            "json": false
+        }));
 	}
 	
-	if(conf.log.error.isEnabled) {
-		transports.push(new winston.transports.File({ "level": conf.log.error.level, "filename": conf.log.error.filename, timestamp: winston.format.timestamp(), "json": false }));
+    if (conf.log.error.isEnabled) {
+        //TODO: Improvement find suitable implementation to rotate error logs
+        transports.push(new winston.transports.File({ "level": conf.log.error.level, "filename": conf.log.error.dirname + '/' + conf.log.error.filename, timestamp: winston.format.timestamp(), "json": false }));
 	}
 	
 	var logger = winston.createLogger({
 		level: conf.log.level,
-		format: winston.format.printf(info => `${new Date().toISOString()} : ${info.message}`), //winston.format.combine(winston.format.timestamp().timestamp, winston.format.simple()),
+		format: winston.format.printf(info => `${new Date().toString()} : ${info.message}`), //winston.format.combine(winston.format.timestamp().timestamp, winston.format.simple()),
 		transports: transports,
 		exitOnError: false, // do not exit on handled exceptions
 	});
@@ -79,11 +90,37 @@ var formatMailContent = function(templateContent, details, promises, results, co
 	return mailContent;
 };
 
+var canStartPolling = function () {
+    var currentDateTimeInMs = new Date();
+
+    if (!conf.pollingStartTimeAsDate) {
+        var pollingStartTime = new Date(currentDateTimeInMs.getTime());
+        var startTimeConf = conf.pollingStartTime.split(':');
+        pollingStartTime.setHours(Number(startTimeConf[0]), Number(startTimeConf[1]), Number(startTimeConf[2]));
+        conf.pollingStartTimeAsDate = pollingStartTime;
+    }
+
+    if (!conf.pollingEndTimeAsDate) {
+        var pollingEndTime = new Date(currentDateTimeInMs.getTime());
+        var endTimeConf = conf.pollingEndTime.split(':');
+        pollingEndTime.setHours(Number(endTimeConf[0]), Number(endTimeConf[1]), Number(endTimeConf[2]));
+        conf.pollingEndTimeAsDate = pollingEndTime;
+    }
+
+    var currentDateTimeInMs = currentDateTimeInMs.getTime();
+    var pollingStartTimeInMs = conf.pollingStartTimeAsDate.getTime();
+    var pollingEndTimeInMs = conf.pollingEndTimeAsDate.getTime();
+
+    return currentDateTimeInMs > pollingStartTimeInMs && currentDateTimeInMs < pollingEndTimeInMs;
+}
+
 var monitorFeed = function(conf, mailer, templateContent, logger) {
 	var intervalObj = null;
-	try {
-		intervalObj = setInterval(() => {
-			requestCommodityFeed(mailer, templateContent, conf, logger);
+    try {
+        intervalObj = setInterval(() => {
+            if (canStartPolling()) {
+                requestCommodityFeed(mailer, templateContent, conf, logger);
+            }
 		}, conf.pollIntervalInMs);
 	} catch(e) {
 		logger.error('Error while triggering poll: ' + e);
@@ -315,9 +352,13 @@ var requestCommodityFeed = function(send, templateContent, conf, logger) {
 };
 
 try {
-	var contents = fs.readFileSync(filePath, 'utf8');
+    dotenv.config();
+    var runMode = process.env.MODE;
+    var configFilePath = "{filePath}{runMode}.json".format({ filePath: filePath, runMode: runMode ? '.' + runMode : '' });
+    var contents = fs.readFileSync(configFilePath, 'utf8');
 	var conf = JSON.parse(contents);
-	var logger = initLogs(conf);
+    var logger = initLogs(conf);
+    logger.info('Initializing ' + (runMode ? runMode : 'dev') + ' mode.');
 	logger.info('Logging initialization successful!');
 	
 	try {

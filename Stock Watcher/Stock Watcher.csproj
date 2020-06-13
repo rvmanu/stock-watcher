@@ -34,6 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="src\.env" />
+    <None Include="src\conf.prod.json" />
     <None Include="src\conf.json" />
     <None Include="src\logs\error\error.log" />
     <None Include="src\logs\info\info.log" />
