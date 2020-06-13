@@ -31,9 +31,9 @@
   ],
   "mailIntervalInMinutes": 60,
   "mailOptions": {
-    "user": "commodity.notification@gmail.com",
-    "pass": "C0mm0d1ty",
-    "to": "rvmanu@gmail.com",
+    "user": "user@gmail.com",
+    "pass": "user",
+    "to": "user@gmail.com",
     "subject": "NIFTY-50 Fall in NAV Notification"
   },
   "log": {
